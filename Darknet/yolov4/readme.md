@@ -13,30 +13,33 @@
 
 ### 二、配置环境
 1.  安装Nvidia驱动
-    +   安装完成后在CMD中使用 `nvidia-smi` 即可看到显卡相关信息。
+    +   安装完成后在CMD中使用 `nvidia-smi` 即可看到显卡相关信息:  
         ![nvidia-smi-show](./image/nvidia-smi-show.png)
 
 2.  安装CUDA
     1.  安装完成后:
-        1.  CMD中使用 `nvcc -V` 即可看到CUDA信息:
+        1.  CMD中使用 `nvcc -V` 即可看到CUDA信息:  
             ![cuda-show-1](./image/cuda-show-1.png)
-        2.  CMD中,在`C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.5\extras\demo_suite`目录下执行`deviceQuery.exe`可看到如下信息:
+
+        2.  CMD中,在`C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.5\extras\demo_suite`目录下执行`deviceQuery.exe`可看到如下信息:  
             ![cuda-show-2](./image/cuda-show-2.png)
 
-3.  三、安装cudnn
+3.  安装cudnn
     1.  解压cudnn.zip
+
     2.  粘贴解压后的 `bin、include、lib` 中的内容分别到 `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.5\` 下的 `bin、include、lib` 目录中。
 
-4.  四、安装Opencv  
+4.  安装Opencv  
     Emmm,干就完事了
 
 5.  配置环境变量
     1.  确定如下环境变量存在：
         ![system-path](./image/system-path.png)
+
     2.  复制 `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.5\extras\visual_studio_integration\MSBuildExtensions\` 目录下全部文件到 `C:\Program Files\Microsoft Visual Studio\2022\Community\Msbuild\Microsoft\VC\v160\BuildCustomizations\` 目录下
 
 
-### 五、配置项目
+### 三、配置项目
 1.  [下载 darknet-yolov4](https://github.com/AlexeyAB/darknet/archive/refs/tags/yolov4.zip)
 
 2.  解压到 `$yolov4-project` 目录
@@ -71,19 +74,23 @@
     ![build_succeed](./image/build_succeed.png)
 
 
-### 六、准备数据集
+### 四、准备数据集
 1.  下载COCO2017数据集
     +   [Train](http://images.cocodataset.org/zips/train2017.zip)
+
     +   [Val](http://images.cocodataset.org/zips/val2017.zip)
+    
     +   [annotations](http://images.cocodataset.org/annotations/annotations_trainval2017.zip)
 
 2. 转换数据集格式(因为COCO2017是COCO格式，需要转成VOC格式。以下`.../`为你解压的实际目录)
     1.  生成 train2017.txt 及 label文件
         1.  在 `.../coco_dataset/train2017/` 目录下打开cmd执行 `dir /s /b /a > ../train2017.txt` 生成文件目录的绝对路径列表
+
         2.  使用python脚本 `coco2yolo.py --json_path .../coco_dataset/annotations/instances_train2017.json --save_path .../coco_dataset/train2017/` 
 
     2.  生成 val2017.txt
         1.  在 `.../coco_dataset/val2017/` 目录下打开cmd执行 `dir /s /b /a > ../val2017.txt` 生成文件目录的绝对路径列表
+
         2.  使用python脚本 `coco2yolo.py --json_path .../coco_dataset/annotations/instances_val2017.json --save_path .../coco_dataset/val2017/` 
     
     3. coco2yolo.py:
@@ -158,7 +165,7 @@
         ```
 
 
-### 七、修改训练配置文件
+### 五、修改训练配置文件
 1.  修改 `$yolov4-project/build/darknet/build/darknet/x64/data/coco.data` 为
     ```text
     classes= 80
@@ -182,14 +189,14 @@
 
 3. 下载 [预训练模型 yolov4.conv.137](https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v3_optimal/yolov4.conv.137) [权重文件 yolov4.weights](https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v3_optimal/yolov4.weights) 到 `$yolov4-project/build/darknet/build/darknet/x64/` 目录
 
-### 八、启动训练
+### 六、启动训练
 +   在 ``目录下进入cmd，输入命令
     ```shell
     ./darknet.exe detector train data/coco.data cfg/yolov4.cfg ./yolov4.conv.137 -map
     ```
     开始训练
 
-### 九、推理测试
+### 七、推理测试
 +   在 ``目录下进入cmd，输入命令
     ```shell
     ./darknet detector demo data/coco.data cfg/yolov4.cfg yolov4.weights data/自行下载的视频.mp4
