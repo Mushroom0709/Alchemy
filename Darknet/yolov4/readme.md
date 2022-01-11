@@ -199,7 +199,11 @@
 ### 七、推理测试
 +   在 ``目录下进入cmd，输入命令
     ```shell
+    # 仅显示
     ./darknet detector demo data/coco.data cfg/yolov4.cfg yolov4.weights data/自行下载的视频.mp4
+    
+    # 保存推理结果视频
+    ./darknet detector demo data/coco.data cfg/yolov4.cfg ./yolov4.weights ./data/自行下载的视频.mp4 -out_filename ./data/推理结果.mp4
     ```
     开始推理测试
     
