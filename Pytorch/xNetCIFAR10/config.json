@@ -1,0 +1,10 @@
+{
+  "batch_size": 128,
+  "device": "cuda",
+  "epoch": 100,
+  "lr": 0.001,
+  "log_dir": "./log/",
+  "dataset_path": "./Dataset/CIFAR10/",
+  "checkpoint_path": "./ouput/",
+  "checkpoint_svae": 10
+}
