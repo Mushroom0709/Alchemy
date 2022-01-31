@@ -129,7 +129,7 @@ class xCIFAR10:
         for epoch in range(self.config['epoch']):
             self.train_function(epoch + 1)
             self.test_function(epoch + 1)
-            if epoch % self.config['checkpoint_svae'] == 0 or epoch == self.config['checkpoint_svae']:
+            if (epoch + 1) % int(self.config['checkpoint_svae']) == 0:
                 torch.save(self.net_cifar10, "{}x_net_{}.pth".format(self.config['checkpoint_path'], epoch + 1))
         print("[INFO] [训练结束]")
 

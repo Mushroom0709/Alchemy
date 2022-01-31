@@ -1,7 +1,7 @@
 {
-  "batch_size": 128,
+  "batch_size": 80,
   "device": "cuda",
-  "epoch": 100,
+  "epoch": 180,
   "lr": 0.001,
   "log_dir": "./log/",
   "dataset_path": "./Dataset/CIFAR10/",
