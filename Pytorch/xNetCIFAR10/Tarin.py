@@ -9,7 +9,7 @@ from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
-from Module import xNetCIFAR10
+from Module import xNetCIFAR
 
 
 class xCIFAR10:
@@ -18,10 +18,10 @@ class xCIFAR10:
         self.log_writer = None
         self.device_type = None
 
-        self.cifar10_loader_train = None
-        self.cifar10_loader_test = None
+        self.cifar_loader_train = None
+        self.cifar_loader_test = None
 
-        self.net_cifar10 = None
+        self.net_cifar = None
         self.criterion = None
         self.optimizer = None
 
@@ -42,18 +42,18 @@ class xCIFAR10:
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
-        cifar10_data_train = torchvision.datasets.CIFAR10(self.config['dataset_path'],
-                                                          train=True,
-                                                          download=True,
-                                                          transform=transform)
+        cifar_data_train = torchvision.datasets.CIFAR10(self.config['dataset_path'],
+                                                        train=True,
+                                                        download=True,
+                                                        transform=transform)
 
-        cifar10_data_test = torchvision.datasets.CIFAR10(self.config['dataset_path'],
-                                                         train=False,
-                                                         download=True,
-                                                         transform=transform)
+        cifar_data_test = torchvision.datasets.CIFAR10(self.config['dataset_path'],
+                                                       train=False,
+                                                       download=True,
+                                                       transform=transform)
 
-        self.cifar10_loader_train = DataLoader(dataset=cifar10_data_train, batch_size=self.config['batch_size'])
-        self.cifar10_loader_test = DataLoader(dataset=cifar10_data_test, batch_size=self.config['batch_size'])
+        self.cifar_loader_train = DataLoader(dataset=cifar_data_train, batch_size=self.config['batch_size'])
+        self.cifar_loader_test = DataLoader(dataset=cifar_data_test, batch_size=self.config['batch_size'])
 
     def init_log_writer(self, date_str):
         log_path = "{}{}/".format(self.config['log_dir'], date_str)
@@ -77,17 +77,18 @@ class xCIFAR10:
         self.init_check_checkpoint_path(date_str)
 
         self.device_type = torch.device(self.config['device'])
-        self.net_cifar10 = xNetCIFAR10().to(device=self.device_type)
+        self.net_cifar = xNetCIFAR(self.config['class_num']).to(device=self.device_type)
         self.criterion = nn.CrossEntropyLoss().to(device=self.device_type)
-        self.optimizer = torch.optim.Adam(self.net_cifar10.parameters(), lr=self.config['lr'])
+        self.optimizer = torch.optim.Adam(self.net_cifar.parameters(), lr=self.config['lr'])
+        self.scheduler = torch.optim.lr_scheduler.ExponentialLR(self.optimizer, gamma=0.1, last_epoch=-1)
 
     def train_function(self, epoch_step):
         print("[INFO]--------第{}轮训练开始-----------".format(epoch_step))
-        for images, targets in self.cifar10_loader_train:
+        for images, targets in self.cifar_loader_train:
             images = images.to(device=self.device_type)
             targets = targets.to(device=self.device_type)
 
-            output = self.net_cifar10(images)
+            output = self.net_cifar(images)
             train_loss = self.criterion(output, targets)
             self.optimizer.zero_grad()
             train_loss.backward()
@@ -95,9 +96,12 @@ class xCIFAR10:
 
             self.tarin_step += 1
 
+            self.config
+
             if self.tarin_step % 20 == 0:
                 print("[INFO] [训练次数:{}-{}] [训练loss:{:.4f}]".format(epoch_step, self.tarin_step, train_loss.item()))
                 self.log_writer.add_scalar("train_loss".format(epoch_step), train_loss.item(), self.tarin_step)
+        self.scheduler.step()
 
     def test_function(self, epoch_step):
         # test
@@ -105,18 +109,18 @@ class xCIFAR10:
         total_test_loss = 0.0
         total_test = 0
         with torch.no_grad():
-            for images, targets in self.cifar10_loader_test:
+            for images, targets in self.cifar_loader_test:
                 images = images.to(device=self.device_type)
                 targets = targets.to(device=self.device_type)
 
-                output = self.net_cifar10(images)
+                output = self.net_cifar(images)
 
                 test_loss = self.criterion(output, targets)
                 total_test_loss += test_loss.item()
                 _, predicted = torch.max(output.data, 1)
                 total_test += targets.size(0)
                 correct += (predicted == targets).sum().item()
-            avg_test_loss = total_test_loss / len(self.cifar10_loader_test)
+            avg_test_loss = total_test_loss / len(self.cifar_loader_test)
             print("[INFO] [测试loss:{}-{:.4f}] [total {} images: {:.4f}%]".format(epoch_step,
                                                                                 avg_test_loss,
                                                                                 total_test,
@@ -130,7 +134,7 @@ class xCIFAR10:
             self.train_function(epoch + 1)
             self.test_function(epoch + 1)
             if (epoch + 1) % int(self.config['checkpoint_svae']) == 0:
-                torch.save(self.net_cifar10, "{}x_net_{}.pth".format(self.config['checkpoint_path'], epoch + 1))
+                torch.save(self.net_cifar, "{}x_net_{}.pth".format(self.config['checkpoint_path'], epoch + 1))
         print("[INFO] [训练结束]")
 
     def __del__(self):

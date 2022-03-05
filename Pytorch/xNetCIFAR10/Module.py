@@ -2,9 +2,9 @@ import torch
 from torch import nn
 
 
-class xNetCIFAR10(torch.nn.Module):
-    def __init__(self):
-        super(xNetCIFAR10, self).__init__()
+class xNetCIFAR(torch.nn.Module):
+    def __init__(self, class_num=10):
+        super(xNetCIFAR, self).__init__()
         # self.model = nn.Sequential(
         #     torch.nn.Conv2d(in_channels=3, out_channels=32, kernel_size=5, stride=1, padding=2),
         #     torch.nn.MaxPool2d(kernel_size=2),
@@ -14,7 +14,7 @@ class xNetCIFAR10(torch.nn.Module):
         #     torch.nn.MaxPool2d(kernel_size=2),
         #     nn.Flatten(),
         #     nn.Linear(1024, 64),
-        #     nn.Linear(64, 10)
+        #     nn.Linear(64, class_num)
         # )
 
         self.features = nn.Sequential(
@@ -40,7 +40,7 @@ class xNetCIFAR10(torch.nn.Module):
             nn.Dropout(),
             nn.Linear(4096, 4096),
             nn.ReLU(inplace=True),
-            nn.Linear(4096, 10),
+            nn.Linear(4096, class_num),
         )
 
     def forward(self, x):
@@ -51,5 +51,5 @@ class xNetCIFAR10(torch.nn.Module):
 
 
 if __name__ == "__main__":
-    xnet = xNetCIFAR10()
+    xnet = xNetCIFAR()
     print(xnet)
